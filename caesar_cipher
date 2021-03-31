@@ -1,0 +1,26 @@
+def encrypt(word):         # a function that encrypts a word using the Caesar cipher
+    I = 0
+    coded_word = ''
+    X1 = list(range(65,91))
+    X2 = list(range(97,123))
+    for i in word:
+        if i.isalpha():
+            I += 1
+    for i in word:
+        if i.isalpha():
+            if ((ord(i)) + I) in X1 or ((ord(i)) + I) in X2:
+                coded_word += chr((ord(i)) + I)
+            elif ord(i) in range(65,91):
+                coded_word += chr((((ord(i)) + I) - 91) + 65)
+            elif ord(i) in range(97,123):
+                coded_word += chr((((ord(i)) + I) - 123) + 97)
+        else:
+            coded_word += i
+    return coded_word
+
+n = input()
+n = n.split()
+ANSWER = []
+for i in n:
+    ANSWER.append(encrypt(i))
+print(*ANSWER)
