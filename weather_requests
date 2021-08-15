@@ -1,0 +1,40 @@
+import requests
+
+s_city = "Baikonur"
+city_id = 0
+lat = 45.57
+lon = 63.18
+appid = "e9097fc25359bd6f4e7c577821c2cc36"
+temp_diff = {}
+
+try:
+    res = requests.get("http://api.openweathermap.org/data/2.5/find",
+                 params={'q': s_city, 'type': 'like', 'units': 'metric', 'APPID': appid})
+    data = res.json()
+    cities = ["{} ({})".format(d['name'], d['sys']['country'])
+              for d in data['list']]
+    city_id = data['list'][0]['id']
+    pressure_list = []
+    res = requests.get("http://api.openweathermap.org/data/2.5/forecast",
+        params={'id': city_id, 'units': 'metric', 'lang': 'ru', 'APPID': appid})
+    data = res.json()
+    for i in data['list']:
+        pressure_list.append('{}'.format(i['main']['pressure']))
+    print('Максимальное давление за предстоящие 5 дней в городе {} составляет: {} hPa'.format(s_city,max(pressure_list)))
+    res = requests.get("http://api.openweathermap.org/data/2.5/onecall",
+        params={'lat': lat, 'lon': lon, 'units': 'metric', 'lang': 'ru', 'APPID': appid,'exclude':'minutely,hourly','daily':'daily.pressure'})
+    data = res.json()
+    for d in range(8):
+        temp_night = data['daily'][d]['temp']['night']
+        temp_morn = data['daily'][d]['temp']['morn']
+        temp_diff[d+1] = round(abs(temp_night - temp_morn),2)
+        min_temp_diff = min(temp_diff.values())
+        day_with_min = 0
+        for i in temp_diff:
+            if temp_diff[i] == min_temp_diff:
+                day_with_min = i
+        
+    print('{}-й день будет с минимальной разницей между ночной и утренней температурой в {} град.'.format(day_with_min, min_temp_diff))
+except Exception as e:
+    print("Exception (forecast):", e)
+    pass
